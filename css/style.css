@@ -353,6 +353,14 @@ main {
   z-index: 100;
 }
 
+/* `display: flex` above has the same specificity as the browser's default
+   `[hidden] { display: none }` rule, and ours loads later — so without this,
+   the overlay stays full-screen and intercepts every click even while
+   `hidden` is set. */
+.overlay[hidden] {
+  display: none;
+}
+
 .overlay-dialog {
   background: var(--color-surface);
   width: 100%;
