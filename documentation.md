@@ -63,6 +63,17 @@ implemented with plain string keys instead of classes.
    later doesn't get a "free" advantage.
 3. Push a new player object `{id, name, played, won:0, lost:0, goalsFor:0,
    goalsAgainst:0, active:true}` onto `state.players`.
+4. **Shuffle, once there are 4 or more players**: `shuffleArray(state.players)`.
+   This matters because `generateNextMatch()` (section 5) breaks ties in
+   `played` using a *stable* sort, which otherwise resolves ties in array
+   order. Without this shuffle, the first 4 players ever added would always
+   have `played=0` together first, in the same insertion order, and would
+   therefore always be drawn as the very first match — every single fresh
+   session, deterministically. The original Android app had the same
+   shuffle in `createPlayer()` for exactly this reason (`Collections.shuffle
+   (MainActivity.playerList)`), triggered under the same condition
+   (`playerList.size() >= 4`); this port had initially dropped it, which
+   was reported and fixed.
 
 There is no separate "pair/match generation" step like the original
 Android app had (`generatePairs()`/`generateMatches()`) — there, that was a
