@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b5e20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>CsocsoMaster</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>⚽ CsocsoMaster</h1>
+  <div class="header-actions">
+    <div class="lang-toggle" role="group" aria-label="Language / Nyelv">
+      <button type="button" class="lang-btn" data-lang="hu">HU</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+    </div>
+    <button id="btn-settings" class="icon-btn" data-i18n-title="settingsTitle" data-i18n-aria-label="settingsTitle" title="Beállítások" aria-label="Beállítások">⚙</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="players" data-i18n="tabPlayers">Játékosok</button>
+  <button class="tab-btn" data-tab="match" data-i18n="tabMatch">Meccs</button>
+  <button class="tab-btn" data-tab="table" data-i18n="tabTable">Táblázat</button>
+  <button class="tab-btn" data-tab="results" data-i18n="tabResults">Eredmények</button>
+</nav>
+
+<main>
+
+  <section id="tab-players" class="tab-panel active">
+    <form id="form-add-player" class="add-player-form">
+      <input type="text" id="input-player-name" data-i18n-placeholder="addPlayerPlaceholder" placeholder="Új játékos neve" autocomplete="off" maxlength="30" required>
+      <button type="submit" class="btn btn-primary" data-i18n="addPlayerBtn">+ Hozzáad</button>
+    </form>
+    <ul id="player-list" class="player-list"></ul>
+    <p id="player-list-empty" class="empty-hint" data-i18n="playersEmpty">Még nincs felvéve játékos. Adj hozzá legalább 4-et a meccsek elindításához.</p>
+  </section>
+
+  <section id="tab-match" class="tab-panel">
+    <div id="match-empty" class="empty-hint" data-i18n="matchEmpty">
+      Nincs aktív meccs. Adj hozzá legalább 4 aktív játékost, majd nyomd meg a "Következő" vagy "Új párosítás" gombot.
+    </div>
+    <div id="match-display" class="match-display" hidden>
+      <div class="match-team" data-team="1">
+        <div class="team-players">
+          <span id="team1-player1" class="player-name"></span>
+          <span class="vs-sep">&amp;</span>
+          <span id="team1-player2" class="player-name"></span>
+        </div>
+        <div class="score-control" id="score-control-1">
+          <button type="button" class="btn-score-dec" data-pair="1" data-i18n-aria-label="decreaseAria" aria-label="Csökkentés">−</button>
+          <span id="score1" class="score-value">0</span>
+          <button type="button" class="btn-score-inc" data-pair="1" data-i18n-aria-label="increaseAria" aria-label="Növelés">+</button>
+        </div>
+      </div>
+
+      <div class="match-vs">VS</div>
+
+      <div class="match-team" data-team="2">
+        <div class="team-players">
+          <span id="team2-player1" class="player-name"></span>
+          <span class="vs-sep">&amp;</span>
+          <span id="team2-player2" class="player-name"></span>
+        </div>
+        <div class="score-control" id="score-control-2">
+          <button type="button" class="btn-score-dec" data-pair="2" data-i18n-aria-label="decreaseAria" aria-label="Csökkentés">−</button>
+          <span id="score2" class="score-value">0</span>
+          <button type="button" class="btn-score-inc" data-pair="2" data-i18n-aria-label="increaseAria" aria-label="Növelés">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="match-actions">
+      <button id="btn-next" class="btn btn-primary btn-large" data-i18n="nextBtn">Következő</button>
+      <button id="btn-skip" class="btn btn-secondary btn-large" data-i18n="skipBtn">Új párosítás</button>
+    </div>
+    <p id="too-few-hint" class="empty-hint error-hint" hidden data-i18n="tooFewHint">Túl kevés aktív játékos (minimum 4 kell)!</p>
+  </section>
+
+  <section id="tab-table" class="tab-panel">
+    <div class="table-wrap">
+      <table id="results-table" class="results-table">
+        <thead>
+          <tr>
+            <th data-i18n="tableName">Név</th>
+            <th data-i18n="tablePlayed">J</th>
+            <th data-i18n="tableWon">GY</th>
+            <th data-i18n="tableLost">V</th>
+            <th data-i18n="tableRatio">%</th>
+            <th data-i18n="tableGf">LG</th>
+            <th data-i18n="tableGa">KG</th>
+            <th data-i18n="tableGd">GK</th>
+          </tr>
+        </thead>
+        <tbody id="results-table-body"></tbody>
+      </table>
+    </div>
+    <p id="table-empty" class="empty-hint" data-i18n="noMatchesPlayed">Még nincs lejátszott meccs.</p>
+  </section>
+
+  <section id="tab-results" class="tab-panel">
+    <ul id="finished-match-list" class="finished-match-list"></ul>
+    <p id="finished-empty" class="empty-hint" data-i18n="noMatchesPlayed">Még nincs lejátszott meccs.</p>
+  </section>
+
+</main>
+
+<div id="settings-overlay" class="overlay" hidden>
+  <div class="overlay-dialog">
+    <h2 data-i18n="settingsTitle">Beállítások</h2>
+
+    <label class="setting-row">
+      <span data-i18n="settingKeepScore">Eredmény mutatása meccs közben</span>
+      <input type="checkbox" id="setting-keep-score" checked>
+    </label>
+
+    <label class="setting-row">
+      <span data-i18n="settingWinScore">Hány gól kell a győzelemhez</span>
+      <input type="number" id="setting-win-score" min="1" max="99" value="5">
+    </label>
+
+    <hr>
+
+    <div class="settings-actions">
+      <button id="btn-save-list" class="btn btn-secondary" data-i18n="saveListBtn">Játékoslista mentése</button>
+      <button id="btn-load-list" class="btn btn-secondary" data-i18n="loadListBtn">Játékoslista betöltése</button>
+      <button id="btn-reset-data" class="btn btn-danger" data-i18n="resetBtn">Adatok törlése</button>
+    </div>
+
+    <button id="btn-settings-close" class="btn btn-primary" style="margin-top:16px;width:100%;" data-i18n="closeBtn">Bezárás</button>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
