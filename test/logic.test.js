@@ -59,6 +59,27 @@ test('addPlayer(): a late joiner is fast-forwarded to the current minimum played
   assert.equal(b.played, 7, 'late joiner should not start behind (unfair advantage) relative to existing players');
 });
 
+test('addPlayer(): once there are 4+ players the roster order is shuffled, not left in insertion order', () => {
+  // Regression guard for a reported bug: without shuffling, generateNextMatch()'s
+  // stable sort always breaks played=0 ties in array order, so the first 4
+  // players ever added would face off in every single first match, forever.
+  // The original Android app shuffled playerList in createPlayer() for exactly
+  // this reason; this test fails if that shuffle is ever removed.
+  const seenOrders = new Set();
+  for (let trial = 0; trial < 30; trial++) {
+    freshState();
+    const players = addPlayers(['A', 'B', 'C', 'D']);
+    seenOrders.add(players.map(p => p.name).join(','));
+  }
+  assert.ok(seenOrders.size > 1, `expected roster order to vary across repeated additions, got the same order all ${30} times`);
+});
+
+test('addPlayer(): shuffling only kicks in once there are at least 4 players (matches the original trigger condition)', () => {
+  freshState();
+  const [a, b, c] = addPlayers(['A', 'B', 'C']);
+  assert.deepEqual(app.getState().players.map(p => p.name), ['A', 'B', 'C'], 'with fewer than 4 players there is nothing to shuffle for yet');
+});
+
 test('toggleActive(): deactivating a player who is behind the active minimum bumps them up first', () => {
   freshState();
   const [a, b, c, d] = addPlayers(['A', 'B', 'C', 'D']);

@@ -296,6 +296,13 @@ function applyResult(playerIds, ownScore, oppScore) {
   }
 }
 
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
 function addPlayer(name) {
   name = name.trim();
   if (!name) return;
@@ -310,6 +317,11 @@ function addPlayer(name) {
     goalsAgainst: 0,
     active: true
   });
+  // Once there are enough players to form a match, shuffle the roster so
+  // ties in generateNextMatch()'s stable sort don't always resolve in
+  // insertion order (which would otherwise always pit the first 4 added
+  // players against each other, every time, forever).
+  if (state.players.length >= 4) shuffleArray(state.players);
 }
 
 function toggleActive(id) {
@@ -669,7 +681,7 @@ if (typeof module !== 'undefined' && module.exports) {
     idsKey, matchKey, pairPlayedCount, groupPlayedCount, matchPlayedCount,
     combinations, pairSplits,
     generateNextMatch, recordCurrentMatchResult, applyResult,
-    addPlayer, toggleActive, resetData,
+    addPlayer, toggleActive, resetData, shuffleArray,
     incScore, decScore,
     t, I18N,
     initApp

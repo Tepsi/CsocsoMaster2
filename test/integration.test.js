@@ -32,7 +32,10 @@ test('adding players renders them and hides the empty-state hint', () => {
 
   assert.equal(dom.window.document.getElementById('player-list-empty').hidden, true);
   const names = [...dom.window.document.querySelectorAll('#player-list .player-row-name')].map(e => e.textContent);
-  assert.deepEqual(names, ['Alice', 'Bob', 'Carol', 'Dave']);
+  // Order is intentionally not asserted here: once there are 4+ players the
+  // roster is shuffled (see the dedicated shuffle test below), so only set
+  // membership is guaranteed, not insertion order.
+  assert.deepEqual(names.slice().sort(), ['Alice', 'Bob', 'Carol', 'Dave']);
 });
 
 test('clicking a player row toggles active/inactive styling', () => {
