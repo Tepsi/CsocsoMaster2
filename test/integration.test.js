@@ -182,18 +182,25 @@ test('Table tab: standings are sorted by win ratio, then goal difference, then g
   }
   click(dom, 'btn-next'); // records the final round
 
-  const expectedOrder = ['Alice', 'Bob', 'Carol', 'Dave'].slice().sort((x, y) => {
-    const rx = wins[x] / (wins[x] + losses[x]);
-    const ry = wins[y] / (wins[y] + losses[y]);
-    if (rx !== ry) return ry - rx;
-    const gdx = gf[x] - ga[x], gdy = gf[y] - ga[y];
-    if (gdx !== gdy) return gdy - gdx;
-    return gf[y] - gf[x];
-  });
-
   const renderedNames = [...dom.window.document.querySelectorAll('#results-table-body tr td:first-child')]
     .map(td => td.textContent);
-  assert.deepEqual(renderedNames, expectedOrder);
+  assert.deepEqual(renderedNames.slice().sort(), ['Alice', 'Bob', 'Carol', 'Dave']);
+
+  // Every win in this test is a forced 5-0, so two players with the same win
+  // count are an exact 3-way tie on ratio, goal diff, *and* goals for — which
+  // intra-tie order the sort settles on is an implementation detail, not a
+  // correctness requirement. Assert the sort invariant (no two adjacent rows
+  // are out of order) instead of one specific permutation.
+  const sortKey = name => {
+    const played = wins[name] + losses[name];
+    return [wins[name] / played, gf[name] - ga[name], gf[name]];
+  };
+  for (let i = 0; i < renderedNames.length - 1; i++) {
+    const a = sortKey(renderedNames[i]);
+    const b = sortKey(renderedNames[i + 1]);
+    const cmp = (b[0] - a[0]) || (b[1] - a[1]) || (b[2] - a[2]);
+    assert.ok(cmp <= 0, `row ${i} (${renderedNames[i]}) must not rank below row ${i + 1} (${renderedNames[i + 1]})`);
+  }
 });
 
 test('Save/Load player list: round-trips names via localStorage and resets everyone\'s stats', () => {
